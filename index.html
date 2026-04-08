@@ -1,65 +1,1345 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <title>Track Desk</title>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrackDesk</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f4f3ef;--surface:#ffffff;--surface2:#f0efe9;--border:#e2e0d8;
+  --text:#1a1916;--text2:#6b6960;--text3:#9e9c94;
+  --accent:#1a3a2a;--accent2:#2d6a4f;--accent-light:#e8f2ec;
+  --danger:#c0392b;--danger-light:#fdecea;
+  --warning:#d97706;--warning-light:#fef3c7;
+  --success:#166534;--success-light:#dcfce7;
+  --info:#1e40af;--info-light:#dbeafe;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 12px rgba(0,0,0,0.08);--shadow-lg:0 10px 30px rgba(0,0,0,0.12);
+  --radius:10px;--radius-sm:6px;--radius-lg:16px;--sw:248px;
+}
+[data-theme="dark"]{
+  --bg:#0e0e0c;--surface:#181714;--surface2:#201f1b;--border:#2c2b25;
+  --text:#f0efe9;--text2:#9e9c94;--text3:#5a5950;
+  --accent:#4ade80;--accent2:#86efac;--accent-light:#0f2319;
+  --danger:#f87171;--danger-light:#2a1212;
+  --warning:#fbbf24;--warning-light:#2a1f08;
+  --success:#4ade80;--success-light:#0f2d1a;
+  --info:#60a5fa;--info-light:#0d1f3a;
+  --shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 12px rgba(0,0,0,0.4);--shadow-lg:0 10px 30px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.login-wrap{width:100%;max-width:420px}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:44px 40px;box-shadow:var(--shadow-lg)}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo-mark{width:38px;height:38px;background:var(--accent);border-radius:9px;display:grid;place-items:center;flex-shrink:0}
+.logo-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.logo-text h1{font-size:21px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.logo-text span{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+.ltabs{display:flex;background:var(--surface2);border-radius:var(--radius-sm);padding:3px;margin-bottom:20px;border:1px solid var(--border)}
+.ltab{flex:1;padding:8px;text-align:center;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s}
+.ltab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.sec-warn{background:var(--warning-light);border:1px solid var(--warning);border-radius:var(--radius-sm);padding:10px 13px;font-size:11.5px;color:var(--warning);margin-bottom:16px;display:flex;gap:8px;align-items:flex-start}
+.sec-warn svg{width:13px;height:13px;stroke:currentColor;fill:none;flex-shrink:0;margin-top:1px;stroke-linecap:round;stroke-linejoin:round}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-family:'DM Mono',monospace}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.fg textarea{resize:vertical;min-height:70px}
+.iw{position:relative}
+.iw input{padding-right:42px}
+.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;display:grid;place-items:center}
+.eye:hover{color:var(--text)}
+.eye svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none;line-height:1}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{opacity:.87;transform:translateY(-1px)}
+.btn-s{background:var(--surface2);color:var(--text);border:1.5px solid var(--border)}.btn-s:hover{border-color:var(--accent);color:var(--accent)}
+.btn-d{background:var(--danger-light);color:var(--danger);border:1.5px solid var(--danger)}.btn-d:hover{background:var(--danger);color:#fff}
+.btn-g{background:transparent;color:var(--text2);border:1.5px solid var(--border)}.btn-g:hover{background:var(--surface2)}
+.btn-sm{padding:6px 11px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+#app{display:none;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s}
+.sbl{padding:18px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.sbl .lm{width:28px;height:28px;background:var(--accent);border-radius:7px;display:grid;place-items:center;flex-shrink:0}
+.sbl .lm svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sbl .lt{font-size:16px;font-weight:700;letter-spacing:-.4px}
+.sbl .ls{font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);display:block;text-transform:uppercase;letter-spacing:.8px}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.nsec{font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:8px 10px 3px;font-family:'DM Mono',monospace}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1px;font-weight:500;font-size:13px}
+.ni:hover{background:var(--surface2);color:var(--text)}
+.ni.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.ni svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nb{margin-left:auto;border-radius:99px;font-size:9px;font-weight:700;padding:1px 6px;font-family:'DM Mono',monospace;color:#fff}
+.nb-g{background:var(--accent2)}
+.nb-w{background:var(--warning)}
+.sbf{padding:12px 8px;border-top:1px solid var(--border)}
+.ur{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
+.ur:hover{background:var(--surface2)}
+.uav{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff}
+.av-admin{background:var(--accent)}
+.av-staff{background:var(--warning)}
+.av-client{background:var(--info)}
+.uname{font-size:12.5px;font-weight:600;line-height:1.2}
+.urole{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 22px;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.tbt{font-size:15px;font-weight:700;flex:1;letter-spacing:-.3px}
+.tbsr{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 11px;flex:1;max-width:280px;transition:border-color .2s}
+.tbsr:focus-within{border-color:var(--accent)}
+.tbsr svg{width:13px;height:13px;color:var(--text3);flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2}
+.tbsr input{border:none;background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%}
+.tbsr input::placeholder{color:var(--text3)}
+.ib{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--surface2);border:1.5px solid var(--border);display:grid;place-items:center;cursor:pointer;transition:all .2s;flex-shrink:0}
+.ib:hover{border-color:var(--accent);color:var(--accent)}
+.ib svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.content{padding:22px;flex:1}
+.page{display:none}.page.active{display:block}
+.client-bar{background:var(--info);color:#fff;padding:9px 22px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px}
+.client-bar svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;flex-shrink:0}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:20px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;box-shadow:var(--shadow)}
+.sc-l{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;margin-bottom:6px}
+.sc-v{font-size:22px;font-weight:700;letter-spacing:-1px;line-height:1}
+.sc-s{font-size:11px;color:var(--text2);margin-top:3px}
+.sc.accent{background:var(--accent);border-color:var(--accent)}
+.sc.accent .sc-l,.sc.accent .sc-s{color:rgba(255,255,255,.6)}
+.sc.accent .sc-v{color:#fff}
+.sc.warn{background:var(--warning-light);border-color:var(--warning)}.sc.warn .sc-v{color:var(--warning)}
+.sc.good{background:var(--success-light);border-color:var(--success)}.sc.good .sc-v{color:var(--success)}
+.cg2{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:20px}
+.cg22{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.cc-t{font-size:12.5px;font-weight:700;margin-bottom:14px}
+.cc-w{position:relative;height:185px}
+.tc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.tc-h{display:flex;align-items:center;gap:8px;padding:13px 17px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tc-h h3{font-size:13.5px;font-weight:700;flex:1;min-width:100px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:11px 13px;font-size:13px;white-space:nowrap}
+.oid{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);font-weight:600}
+.cname{font-weight:600;font-size:13px}
+.cphone{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.mono{font-family:'DM Mono',monospace;font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:99px;font-size:10.5px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap}
+.badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.7}
+.b-new{background:#dbeafe;color:#1e40af}
+.b-processing{background:#fef3c7;color:#92400e}
+.b-shipped{background:#ede9fe;color:#5b21b6}
+.b-delivered{background:#dcfce7;color:#166534}
+.b-cancelled{background:#fee2e2;color:#991b1b}
+.b-rto{background:#fce7f3;color:#9d174d}
+.b-paid,.b-remitted{background:#dcfce7;color:#166534}
+.b-unpaid,.b-pending{background:#fee2e2;color:#991b1b}
+.b-partial{background:#fef3c7;color:#92400e}
+.b-n\/a{background:var(--surface2);color:var(--text3)}
+.b-cod{background:#ede9fe;color:#5b21b6}
+.b-prepaid{background:#dcfce7;color:#166534}
+[data-theme="dark"] .b-new{background:#1e3a5f;color:#93c5fd}
+[data-theme="dark"] .b-processing{background:#3d2a00;color:#fcd34d}
+[data-theme="dark"] .b-shipped{background:#2e1e5e;color:#c4b5fd}
+[data-theme="dark"] .b-delivered{background:#0f2d1a;color:#86efac}
+[data-theme="dark"] .b-cancelled{background:#2a1212;color:#fca5a5}
+[data-theme="dark"] .b-rto{background:#2d0f20;color:#f9a8d4}
+[data-theme="dark"] .b-paid,[data-theme="dark"] .b-remitted{background:#0f2d1a;color:#86efac}
+[data-theme="dark"] .b-unpaid,[data-theme="dark"] .b-pending{background:#2a1212;color:#fca5a5}
+[data-theme="dark"] .b-partial{background:#3d2a00;color:#fcd34d}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:28px 16px;overflow-y:auto;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:620px;box-shadow:var(--shadow-lg);animation:sup .22s ease;border:1px solid var(--border);margin:auto 0}
+.modal-lg{max-width:820px}
+.modal-sm{max-width:400px}
+@keyframes sup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.mh{display:flex;align-items:center;gap:10px;padding:17px 22px;border-bottom:1px solid var(--border)}
+.mh h3{font-size:15px;font-weight:700;flex:1}
+.mclose{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--surface2);border:none;cursor:pointer;display:grid;place-items:center;color:var(--text2);transition:all .15s;font-size:16px}
+.mclose:hover{background:var(--danger-light);color:var(--danger)}
+.mb{padding:22px}
+.mf{padding:13px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.st{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--border)}
+.st:first-child{margin-top:0;padding-top:0;border-top:none}
+.lg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.lc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;text-align:center}
+.lc-l{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:3px}
+.lc-v{font-size:17px;font-weight:700;letter-spacing:-.5px;font-family:'DM Mono',monospace}
+.lc.cr .lc-v{color:var(--success)}
+.lc.db .lc-v{color:var(--danger)}
+.lc.nt .lc-v{color:var(--info)}
+.d2c{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.ds{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px}
+.ds h4{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:9px}
+.dr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:10px}
+.dr:last-child{margin-bottom:0}
+.dk{font-size:11.5px;color:var(--text2)}
+.dv{font-size:12px;font-weight:600;text-align:right;word-break:break-word}
+.tl{padding:0}
+.tli{display:flex;gap:10px;padding-bottom:11px;position:relative}
+.tli:not(:last-child)::before{content:'';position:absolute;left:10px;top:20px;bottom:0;width:1px;background:var(--border)}
+.tld{width:22px;height:22px;border-radius:50%;background:var(--accent-light);border:2px solid var(--accent);display:grid;place-items:center;flex-shrink:0;z-index:1}
+.tld svg{width:9px;height:9px;stroke:var(--accent);stroke-width:2.5;fill:none}
+.tlc{flex:1}
+.tla{font-size:12px;font-weight:600}
+.tlm{font-size:10.5px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px}
+.img-up{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:18px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3)}
+.img-up:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.img-up svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.5;margin-bottom:5px}
+.img-up p{font-size:12px;font-weight:600}
+.img-up span{font-size:11px}
+.img-prev{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.imt{position:relative;width:68px;height:68px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.imt img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.imt .di{position:absolute;top:2px;right:2px;width:16px;height:16px;background:rgba(0,0,0,.65);color:#fff;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-size:9px;line-height:1}
+.lbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;cursor:pointer}
+.lbox.open{display:flex}
+.lbox img{max-width:90vw;max-height:90vh;border-radius:var(--radius);box-shadow:var(--shadow-lg)}
+.ci{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px}
+.ci.dng{background:var(--danger-light)}
+.ci.dng svg{stroke:var(--danger)}
+.ci svg{width:21px;height:21px;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;color:var(--text3);text-align:center}
+.empty svg{width:40px;height:40px;margin-bottom:11px;opacity:.35;stroke:currentColor;fill:none;stroke-width:1.5}
+.empty h3{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:3px}
+.empty p{font-size:12px}
+#toast{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:5px;pointer-events:none}
+.ti{background:var(--accent);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;box-shadow:var(--shadow-md);animation:tin .25s ease;max-width:250px}
+.ti.err{background:var(--danger)}
+@keyframes tin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:12px}
+.pc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s}
+.pc:hover{border-color:var(--accent);box-shadow:var(--shadow-md)}
+.pc-n{font-size:13.5px;font-weight:700;margin-bottom:3px}
+.pc-p{font-size:16px;font-weight:700;color:var(--accent);font-family:'DM Mono',monospace}
+.pc-s{font-size:10.5px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px}
+.people-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center}
+.pav{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:17px;font-weight:700;margin:0 auto 9px;color:#fff}
+.pav.admin{background:var(--accent)}.pav.staff{background:var(--warning)}.pav.client{background:var(--info)}
+.p-n{font-size:13.5px;font-weight:700}
+.p-r{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);margin-top:2px}
+.p-a{display:flex;gap:5px;justify-content:center;margin-top:10px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.sh div h2{font-size:17px;font-weight:700}
+.sh div p{font-size:12px;color:var(--text2);margin-top:2px}
+.divider{height:1px;background:var(--border);margin:14px 0}
+@media(max-width:768px){
+  /* ── SIDEBAR ── */
+  .sidebar{transform:translateX(-100%);width:80vw;max-width:300px;z-index:200}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hb{display:flex!important}
 
+  /* ── LOGIN ── */
+  .login-card{padding:28px 22px}
+  .logo-text h1{font-size:18px}
+
+  /* ── TOPBAR ── */
+  .topbar{padding:0 12px;height:50px}
+  .tbt{font-size:14px}
+  .tbsr{max-width:none;flex:1}
+  .ib{width:32px;height:32px}
+
+  /* ── CONTENT ── */
+  .content{padding:12px 12px 80px}
+
+  /* ── STAT GRID ── */
+  .sg{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .sc{padding:12px 13px}
+  .sc-v{font-size:18px!important}
+  .sc-l{font-size:9px}
+
+  /* ── CHARTS ── */
+  .cg2,.cg22{grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  .cc{padding:14px}
+  .cc-w{height:160px}
+
+  /* ── TABLE → CARD LIST ── */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px}
+
+  /* ── FORM GRIDS ── */
+  .fr,.fr3{grid-template-columns:1fr}
+  .d2c{grid-template-columns:1fr}
+  .lg-grid{grid-template-columns:1fr 1fr;gap:8px}
+
+  /* ── MODAL ── */
+  .overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:var(--radius-lg) var(--radius-lg) 0 0;max-width:100%!important;max-height:92vh;overflow-y:auto}
+  .modal-lg{max-width:100%!important}
+  .modal-sm{max-width:100%!important}
+  .mb{padding:16px}
+  .mh{padding:14px 16px}
+  .mf{padding:12px 16px;flex-wrap:wrap;gap:8px}
+  .mf .btn{flex:1;justify-content:center;min-width:0}
+
+  /* ── ORDER DETAIL QUICK UPDATE ── */
+  #dmB [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+
+  /* ── TC HEADER ── */
+  .tc-h{flex-wrap:wrap;gap:6px;padding:10px 12px}
+  .tc-h h3{width:100%;margin-bottom:2px}
+  .fsel{font-size:11px;padding:5px 7px;flex:1;min-width:0}
+
+  /* ── PEOPLE / PRODUCT GRIDS ── */
+  .people-g{grid-template-columns:1fr 1fr;gap:10px}
+  .pg{grid-template-columns:1fr 1fr;gap:10px}
+  .pcard{padding:14px 10px}
+
+  /* ── SECTION HEADER ── */
+  .sh{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:14px}
+  .sh div:last-child{display:flex;gap:6px;width:100%}
+  .sh div:last-child .btn{flex:1;justify-content:center}
+
+  /* ── BOTTOM NAV ── */
+  #bottomNav{display:flex!important}
+}
+
+/* ── BOTTOM NAV (mobile only) ── */
+#bottomNav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:150;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:6px 0 env(safe-area-inset-bottom,6px);
+  box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+}
+.bn-items{display:flex;justify-content:space-around;align-items:stretch}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text3);transition:all .15s;flex:1;border:none;background:none;font-family:'DM Sans',sans-serif;position:relative}
+.bn-item.active{color:var(--accent)}
+.bn-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bn-item span{font-size:10px;font-weight:600}
+.bn-dot{position:absolute;top:4px;right:calc(50% - 14px);width:7px;height:7px;border-radius:50%;background:var(--warning);border:1.5px solid var(--surface);display:none}
+.bn-dot.show{display:block}
+
+@media(min-width:769px){#bottomNav{display:none!important}}
+.hb{display:none;background:none;border:none;cursor:pointer;color:var(--text);padding:2px}
+.sbo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
+.sbo.open{display:block}
+.fsel{padding:5px 9px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none}
+.fsel:focus{border-color:var(--accent)}
+</style>
+</head>
 <body>
 
-<h2>Track Desk - Test</h2>
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="logo-row">
+        <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="logo-text"><h1>TrackDesk</h1><span>Order & Remittance System</span></div>
+      </div>
+      <div class="ltabs">
+        <div class="ltab active" onclick="setLT('admin')">Admin / Staff</div>
+        <div class="ltab" onclick="setLT('client')">Client Portal</div>
+      </div>
+      <div class="sec-warn">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Protected system. All logins are recorded. Unauthorized access is prohibited.
+      </div>
+      <div class="fg"><label>Username</label><input type="text" id="lu" placeholder="Your username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lp').focus()"></div>
+      <div class="fg"><label>Password</label><div class="iw"><input type="password" id="lp" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"><button class="eye" onclick="tpwd('lp')" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <button class="btn btn-p btn-full" onclick="doLogin()">Sign In Securely</button>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px">Forgot credentials? Contact your administrator.</p>
+    </div>
+  </div>
+</div>
 
-<button onclick="saveOrder()">Save Order</button>
-<button onclick="loadOrders()">Load Orders</button>
+<div id="app">
+  <div class="sbo" id="sbo" onclick="closeSB()"></div>
+  <div class="client-bar" id="clientBar">
+    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    Client View — Read only portal. Contact your manager to update orders.
+  </div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sbl">
+        <div class="lm"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div><span class="lt">TrackDesk</span><span class="ls">v2.0</span></div>
+      </div>
+      <nav class="sb-nav" id="sbNav"></nav>
+      <div class="sbf">
+        <div class="ur" onclick="doLogout()">
+          <div class="uav" id="sbAv">A</div>
+          <div style="flex:1;min-width:0"><div class="uname" id="sbName">—</div><div class="urole" id="sbRole">—</div></div>
+          <svg style="width:12px;height:12px;stroke:var(--text3);fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+      </div>
+    </aside>
+    <main class="main" id="mainArea">
+      <header class="topbar">
+        <button class="hb" onclick="toggleSB()"><svg style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="tbt" id="tbT">Dashboard</div>
+        <div class="tbsr" id="srchBox" style="display:none">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search name, order ID, AWB…" id="srchIn" oninput="filterOrders()">
+        </div>
+        <div class="ib" onclick="toggleTheme()" title="Toggle theme">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+      </header>
+      <div class="content">
+        <div class="page active" id="page-dashboard">
+          <div class="sg" id="sg"></div>
+          <div class="cg2">
+            <div class="cc"><div class="cc-t">Orders – Last 14 Days</div><div class="cc-w"><canvas id="ch_o"></canvas></div></div>
+            <div class="cc"><div class="cc-t">Remittance Overview</div><div class="cc-w"><canvas id="ch_r"></canvas></div></div>
+          </div>
+          <div class="cg22">
+            <div class="cc"><div class="cc-t">Order Status</div><div class="cc-w"><canvas id="ch_s"></canvas></div></div>
+            <div class="cc"><div class="cc-t">COD vs Prepaid</div><div class="cc-w"><canvas id="ch_t"></canvas></div></div>
+          </div>
+          <div class="tc"><div class="tc-h"><h3>Recent Orders</h3></div><div class="tw"><table><thead><tr><th>Order ID</th><th>Client</th><th>Customer</th><th>Type</th><th>COD Amt</th><th>Status</th><th>Remittance</th><th>Date</th></tr></thead><tbody id="recentTb"></tbody></table></div></div>
+        </div>
+        <div class="page" id="page-orders">
+          <div class="tc">
+            <div class="tc-h">
+              <h3>All Orders</h3>
+              <select class="fsel" id="f_st" onchange="filterOrders()"><option value="">All Status</option><option>New</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>RTO</option><option>Cancelled</option></select>
+              <select class="fsel" id="f_ot" onchange="filterOrders()"><option value="">COD+Prepaid</option><option>COD</option><option>Prepaid</option></select>
+              <select class="fsel" id="f_cl" onchange="filterOrders()"><option value="">All Clients</option></select>
+              <button class="btn btn-p btn-sm" id="addOBtn" onclick="openNewOrder()">+ New Order</button>
+              <button class="btn btn-g btn-sm" onclick="exportCSV()">Export CSV</button>
+            </div>
+            <div class="tw"><table><thead><tr><th>Order ID</th><th>Client</th><th>Customer</th><th>Product</th><th>Type</th><th>COD Amt</th><th>Client Paid Me</th><th>Remittance</th><th>Status</th><th>AWB</th><th>Date</th><th id="acol">Actions</th></tr></thead><tbody id="ordersTb"></tbody></table></div>
+          </div>
+        </div>
+        <div class="page" id="page-ledger">
+          <div class="sg" id="lsg"></div>
+          <div class="tc" style="margin-top:0">
+            <div class="tc-h"><h3>Financial Ledger</h3><button class="btn btn-g btn-sm" onclick="exportLedger()">Export</button></div>
+            <div class="tw"><table><thead><tr><th>Order ID</th><th>Client</th><th>Type</th><th>COD Amount</th><th>Client Paid Me</th><th>COD Collected</th><th>Remittance Due</th><th>Remittance Sent</th><th>Balance</th><th>Status</th></tr></thead><tbody id="ledTb"></tbody></table></div>
+          </div>
+        </div>
+        <div class="page" id="page-products">
+          <div class="sh"><div><h2>Product Catalog</h2><p>Products your clients sell</p></div><button class="btn btn-p btn-sm" id="addPBtn" onclick="openPM()">+ Add Product</button></div>
+          <div class="pg" id="prodG"></div>
+        </div>
+        <div class="page" id="page-team">
+          <div class="sh"><div><h2>Team & Clients</h2><p>Manage access</p></div><div style="display:flex;gap:8px"><button class="btn btn-s btn-sm" onclick="openStaffM()">+ Add Staff</button><button class="btn btn-p btn-sm" onclick="openClientM()">+ Add Client</button></div></div>
+          <p class="nsec" style="margin-bottom:10px">Staff Members</p>
+          <div class="people-g" id="staffG"></div>
+          <p class="nsec" style="margin-bottom:10px">Clients</p>
+          <div class="people-g" id="clientG"></div>
+        </div>
+        <div class="page" id="page-settings">
+          <div class="sh"><div><h2>Settings</h2><p>Account & security</p></div></div>
+          <div class="tc"><div class="tc-h"><h3>Change My Password</h3></div>
+            <div style="padding:20px;max-width:380px">
+              <div class="fg"><label>Current Password</label><div class="iw"><input type="password" id="cp_c" placeholder="Current password"><button class="eye" onclick="tpwd('cp_c')" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <div class="fg"><label>New Password</label><div class="iw"><input type="password" id="cp_n" placeholder="New password"><button class="eye" onclick="tpwd('cp_n')" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <div class="fg"><label>Confirm New Password</label><input type="password" id="cp_f" placeholder="Confirm password"></div>
+              <button class="btn btn-p" onclick="changeMyPass()">Update Password</button>
+            </div>
+          </div>
+        </div>
 
-<pre id="output"></pre>
+        <!-- FINANCIAL HUB PAGE -->
+        <div class="page" id="page-finance">
+          <!-- Month filter -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+            <div><h2 style="font-size:17px;font-weight:700">Financial Hub</h2><p style="font-size:12px;color:var(--text2);margin-top:2px">Earnings, P&L and remittance cycles</p></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="fsel" id="fin_month" onchange="renderFinance()" style="font-size:13px;padding:7px 11px">
+                <option value="">All Time</option>
+              </select>
+              <button class="btn btn-g btn-sm" onclick="exportFinance()">Export</button>
+            </div>
+          </div>
 
-<!-- ✅ SUPABASE SCRIPT (ONLY ONCE) -->
+          <!-- My Earnings -->
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;margin-bottom:10px">💰 My Earnings (What I Keep)</div>
+          <div class="sg" id="earn_stats" style="margin-bottom:20px"></div>
+          <div class="cg22" style="margin-bottom:20px">
+            <div class="cc"><div class="cc-t">Monthly Earnings Trend</div><div class="cc-w"><canvas id="ch_earn"></canvas></div></div>
+            <div class="cc"><div class="cc-t">Earnings by Client</div><div class="cc-w"><canvas id="ch_cl_earn"></canvas></div></div>
+          </div>
+
+          <!-- Client P&L -->
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;margin-bottom:10px">📊 Client-wise P&L Summary</div>
+          <div class="tc" style="margin-bottom:20px">
+            <div class="tw"><table>
+              <thead><tr><th>Client</th><th>Orders</th><th>COD Orders</th><th>Prepaid</th><th>Total COD</th><th>Client Paid Me</th><th>Remittance Due</th><th>Remittance Sent</th><th>Balance Owed</th><th>My Earnings</th><th>RTO Count</th></tr></thead>
+              <tbody id="cl_pl_tb"></tbody>
+            </table></div>
+          </div>
+
+          <!-- Shiprocket Remittance Cycles -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace">🚚 Shiprocket Remittance Cycles</div>
+            <button class="btn btn-p btn-sm" onclick="openCycleModal()">+ Log Cycle</button>
+          </div>
+          <div style="background:var(--info-light);border:1px solid var(--info);border-radius:var(--radius-sm);padding:9px 13px;font-size:11.5px;color:var(--info);margin-bottom:12px;display:flex;gap:8px">
+            <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;margin-top:1px;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Track when Shiprocket pays you COD. Once received, mark it forwarded to your client.
+          </div>
+          <div class="tc">
+            <div class="tw"><table>
+              <thead><tr><th>Cycle Date</th><th>Shiprocket Paid Me</th><th>For Client</th><th>Orders in Cycle</th><th>Forwarded to Client</th><th>Forward Date</th><th>Txn Ref</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="cycle_tb"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="overlay" id="oModal">
+  <div class="modal modal-lg">
+    <div class="mh"><h3 id="omT">New Order</h3><button class="mclose" onclick="CM('oModal')">✕</button></div>
+    <div class="mb">
+      <div class="st">Client & Customer</div>
+      <div class="fr">
+        <div class="fg"><label>Client *</label><select id="o_cl"><option value="">Select client…</option></select></div>
+        <div class="fg"><label>Customer Name *</label><input type="text" id="o_cn" placeholder="End customer name"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Phone *</label><input type="text" id="o_ph" placeholder="+91 XXXXX XXXXX"></div>
+        <div class="fg"><label>Email</label><input type="email" id="o_em" placeholder="email@example.com"></div>
+      </div>
+      <div class="fg"><label>Delivery Address *</label><textarea id="o_ad" rows="2" placeholder="Full delivery address with pincode"></textarea></div>
+      <div class="st">Order & Product</div>
+      <div class="fr">
+        <div class="fg"><label>Product *</label><select id="o_pr" onchange="fillPP()"><option value="">Select product…</option></select></div>
+        <div class="fg"><label>Order Type</label><select id="o_ty" onchange="syncRemDue()"><option>COD</option><option>Prepaid</option></select></div>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label>COD / Selling Price (₹) *</label><input type="number" id="o_cod" placeholder="Customer pays this" oninput="syncRemDue()"></div>
+        <div class="fg"><label>Client Paid – Product (₹)</label><input type="number" id="o_cpp" placeholder="Product cost paid by client"></div>
+        <div class="fg"><label>Client Paid – Shipping (₹)</label><input type="number" id="o_cps" placeholder="Shipping paid by client"></div>
+      </div>
+      <div class="st">Shiprocket Shipping</div>
+      <div style="background:var(--info-light);border:1px solid var(--info);border-radius:var(--radius-sm);padding:9px 13px;font-size:11.5px;color:var(--info);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+        <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;margin-top:1px;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        All orders fulfilled via <strong style="margin:0 3px">Shiprocket</strong>. AWB is assigned by Shiprocket after booking. Courier partner is selected by Shiprocket automatically.
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Shiprocket AWB Number</label><input type="text" id="o_awb" placeholder="e.g. 1234567890" oninput="updAWBLink()"></div>
+        <div class="fg"><label>Courier Assigned by Shiprocket</label><select id="o_cour"><option value="">— Auto-assigned —</option><option>Delhivery</option><option>BlueDart</option><option>DTDC</option><option>Ecom Express</option><option>XpressBees</option><option>Shadowfax</option><option>Ekart</option><option>Smartr</option><option>Amazon Shipping</option><option>India Post</option></select></div>
+      </div>
+      <div id="awbLinkWrap" style="display:none;margin-bottom:12px">
+        <a id="awbLink" href="#" target="_blank" style="font-size:12px;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:5px;text-decoration:none">
+          <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Track on Shiprocket ↗
+        </a>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Order Status</label><select id="o_st"><option>New</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>RTO</option><option>Cancelled</option></select></div>
+        <div class="fg"><label>COD Collected from Customer?</label><select id="o_cc"><option value="">Pending</option><option value="yes">Yes – Collected</option><option value="no">No – RTO / Cancelled</option></select></div>
+      </div>
+      <div class="st">COD Remittance</div>
+      <div style="background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius-sm);padding:9px 13px;font-size:11.5px;color:var(--success);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+        <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;margin-top:1px;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span><strong>Flow:</strong> Client pays you product cost + shipping upfront → You ship → Shiprocket collects COD → You forward <strong>full COD amount</strong> back to client as remittance.</span>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label>Remittance Due to Client (₹) <span style="font-size:9px;background:var(--accent-light);color:var(--accent);padding:1px 5px;border-radius:3px;margin-left:4px;font-family:'DM Mono',monospace">= COD amt</span></label><input type="number" id="o_rd" placeholder="Auto-filled from COD amount" readonly style="background:var(--surface2);cursor:not-allowed;opacity:.8"></div>
+        <div class="fg"><label>Remittance Sent to Client (₹)</label><input type="number" id="o_rs" placeholder="0" oninput="updRemStatus()"></div>
+        <div class="fg"><label>Remittance Status</label><select id="o_rst"><option>Pending</option><option>Partial</option><option>Remitted</option><option>N/A</option></select></div>
+      </div>
+      <div class="st">Notes & Receipts</div>
+      <div class="fr">
+        <div class="fg"><label>Client Notes (visible to client)</label><textarea id="o_cn2" rows="2" placeholder="Delivery instructions…"></textarea></div>
+        <div class="fg"><label>Staff Notes (internal only)</label><textarea id="o_sn" rows="2" placeholder="Internal follow-up…"></textarea></div>
+      </div>
+      <div class="fg"><label>Upload Payment Receipts / Proof</label>
+        <div class="img-up" onclick="document.getElementById('imgIn').click()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <p>Click to upload images</p><span>JPG, PNG supported</span>
+        </div>
+        <input type="file" id="imgIn" multiple accept="image/*" style="display:none" onchange="handleImgs(this)">
+        <div class="img-prev" id="imgPrev"></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="CM('oModal')">Cancel</button><button class="btn btn-p" onclick="saveOrder()">Save Order</button></div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="overlay" id="detailM">
+  <div class="modal modal-lg">
+    <div class="mh"><h3 id="dmT">Order Details</h3><button class="mclose" onclick="CM('detailM')">✕</button></div>
+    <div class="mb" id="dmB"></div>
+    <div class="mf">
+      <button class="btn btn-d btn-sm" id="dmDel" onclick="confDelFD()">Delete</button>
+      <button class="btn btn-s" onclick="CM('detailM')">Close</button>
+      <button class="btn btn-p" id="dmEdit" onclick="editFD()">Edit Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="overlay" id="confM">
+  <div class="modal modal-sm">
+    <div class="mb" style="text-align:center;padding:26px 22px">
+      <div class="ci dng"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
+      <h4 style="font-size:15px;font-weight:700;margin-bottom:5px">Delete Order?</h4>
+      <p style="font-size:12.5px;color:var(--text2)">This is permanent and cannot be undone.</p>
+    </div>
+    <div class="mf" style="justify-content:center"><button class="btn btn-s" onclick="CM('confM')">Cancel</button><button class="btn btn-d" onclick="doDelete()">Yes, Delete</button></div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="overlay" id="pModal">
+  <div class="modal modal-sm">
+    <div class="mh"><h3 id="pmT">Add Product</h3><button class="mclose" onclick="CM('pModal')">✕</button></div>
+    <div class="mb">
+      <div class="fg"><label>Product Name *</label><input type="text" id="pm_n" placeholder="Product name"></div>
+      <div class="fr">
+        <div class="fg"><label>Default Price (₹)</label><input type="number" id="pm_p" placeholder="0"></div>
+        <div class="fg"><label>SKU / Code</label><input type="text" id="pm_s" placeholder="SKU-001"></div>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="pm_d" rows="2" placeholder="Short description…"></textarea></div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="CM('pModal')">Cancel</button><button class="btn btn-p" onclick="saveProd()">Save</button></div>
+  </div>
+</div>
+
+<!-- Staff Modal -->
+<div class="overlay" id="staffM">
+  <div class="modal modal-sm">
+    <div class="mh"><h3>Add Staff Member</h3><button class="mclose" onclick="CM('staffM')">✕</button></div>
+    <div class="mb">
+      <div class="fg"><label>Full Name *</label><input type="text" id="sm_n" placeholder="Full name"></div>
+      <div class="fr">
+        <div class="fg"><label>Username *</label><input type="text" id="sm_u" placeholder="username"></div>
+        <div class="fg"><label>Role</label><select id="sm_r"><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
+      </div>
+      <div class="fg"><label>Password *</label><div class="iw"><input type="password" id="sm_p" placeholder="Password"><button class="eye" onclick="tpwd('sm_p')" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="CM('staffM')">Cancel</button><button class="btn btn-p" onclick="saveStaff()">Add</button></div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="overlay" id="clientM">
+  <div class="modal modal-sm">
+    <div class="mh"><h3>Add Client</h3><button class="mclose" onclick="CM('clientM')">✕</button></div>
+    <div class="mb">
+      <div class="fg"><label>Business Name *</label><input type="text" id="cl_n" placeholder="Business name"></div>
+      <div class="fr">
+        <div class="fg"><label>Phone</label><input type="text" id="cl_ph" placeholder="+91…"></div>
+        <div class="fg"><label>Email</label><input type="email" id="cl_em" placeholder="email@…"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="fr">
+        <div class="fg"><label>Login Username *</label><input type="text" id="cl_u" placeholder="client_username"></div>
+        <div class="fg"><label>Login Password *</label><div class="iw"><input type="password" id="cl_p" placeholder="Password"><button class="eye" onclick="tpwd('cl_p')" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="CM('clientM')">Cancel</button><button class="btn btn-p" onclick="saveClient()">Add Client</button></div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="overlay" id="cpM">
+  <div class="modal modal-sm">
+    <div class="mh"><h3>Change Password</h3><button class="mclose" onclick="CM('cpM')">✕</button></div>
+    <div class="mb">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">For: <strong id="cpFor">—</strong></p>
+      <div class="fg"><label>New Password *</label><div class="iw"><input type="password" id="cp_np" placeholder="New password"><button class="eye" onclick="tpwd('cp_np')" type="button"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="fg"><label>Confirm *</label><input type="password" id="cp_cf" placeholder="Confirm password"></div>
+      <input type="hidden" id="cp_id"><input type="hidden" id="cp_isC">
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="CM('cpM')">Cancel</button><button class="btn btn-p" onclick="doChPass()">Update</button></div>
+  </div>
+</div>
+
+<!-- Cycle Modal -->
+<div class="overlay" id="cycleM">
+  <div class="modal modal-sm">
+    <div class="mh"><h3 id="cyT">Log Shiprocket Cycle</h3><button class="mclose" onclick="CM('cycleM')">✕</button></div>
+    <div class="mb">
+      <div style="background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius-sm);padding:9px 13px;font-size:11.5px;color:var(--success);margin-bottom:14px">Record when Shiprocket pays you COD and when you forward it to your client.</div>
+      <div class="fr">
+        <div class="fg"><label>Shiprocket Paid Me On *</label><input type="date" id="cy_date"></div>
+        <div class="fg"><label>Amount Shiprocket Paid (₹) *</label><input type="number" id="cy_amt" placeholder="0"></div>
+      </div>
+      <div class="fg"><label>For Client *</label><select id="cy_cl"><option value="">Select client…</option></select></div>
+      <div class="fg"><label>Orders in this Cycle (Order IDs, comma separated)</label><textarea id="cy_ords" rows="2" placeholder="ORD-1001, ORD-1002…"></textarea></div>
+      <div class="divider"></div>
+      <div class="fr">
+        <div class="fg"><label>Forwarded to Client (₹)</label><input type="number" id="cy_fwd" placeholder="0"></div>
+        <div class="fg"><label>Forward Date</label><input type="date" id="cy_fwddate"></div>
+      </div>
+      <div class="fg"><label>Transaction Reference (UPI / Bank Ref)</label><input type="text" id="cy_ref" placeholder="UPI Ref / UTR number"></div>
+      <div class="fg"><label>Status</label>
+        <select id="cy_st">
+          <option value="received">Received from Shiprocket – Not forwarded yet</option>
+          <option value="forwarded">Forwarded to Client</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="CM('cycleM')">Cancel</button><button class="btn btn-p" onclick="saveCycle()">Save Cycle</button></div>
+  </div>
+</div>
+
+<div class="lbox" id="lbox" onclick="this.classList.remove('open')"><img id="lbImg" src="" alt="Receipt"></div>
+<div id="toast"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div id="bottomNav">
+  <div class="bn-items">
+    <button class="bn-item active" id="bn-dashboard" onclick="mobileNav('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="bn-item" id="bn-orders" onclick="mobileNav('orders')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      <span>Orders</span>
+      <div class="bn-dot" id="bnd-orders"></div>
+    </button>
+    <button class="bn-item" id="bn-ledger" onclick="mobileNav('ledger')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <span>Ledger</span>
+      <div class="bn-dot" id="bnd-ledger"></div>
+    </button>
+    <button class="bn-item" id="bn-products" onclick="mobileNav('products')">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      <span>Products</span>
+    </button>
+    <button class="bn-item" id="bn-more" onclick="toggleSB()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      <span>More</span>
+    </button>
+  </div>
+</div>
+
+<script>
+let DB={
+  users:[
+    {id:'u1',name:'Misab (Admin)',username:'mis000670',password:'Misa@122',role:'admin'}
+  ],
+  clients:[],
+  products:[],
+  orders:[],
+  cycles:[]
+};
+let CU=null,CUT=null,eOid=null,dOid=null,ePid=null,tImgs=[],charts={};
+
+
+function save(){try{localStorage.setItem('td2',JSON.stringify(DB))}catch(e){}}
+function load(){
+  // Wipe old test data if version doesn't match
+  if(localStorage.getItem('td2_v')!=='2'){
+    localStorage.removeItem('td2');
+    localStorage.setItem('td2_v','2');
+  }
+  const d=localStorage.getItem('td2');
+  if(d){try{DB=JSON.parse(d);DB.cycles=DB.cycles||[];}catch(e){save()}}else{save()}
+  // Always enforce hardcoded admin credentials
+  DB.users=DB.users.filter(u=>u.id!=='u1');
+  DB.users.unshift({id:'u1',name:'Misab (Admin)',username:'mis000670',password:'Misa@122',role:'admin'});
+  save();
+}
+
+let loginTab='admin';
+function setLT(t){loginTab=t;document.querySelectorAll('.ltab').forEach((el,i)=>el.classList.toggle('active',(t==='admin'&&i===0)||(t==='client'&&i===1)))}
+function tpwd(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
+function doLogin(){
+  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value.trim();
+  if(!u||!p){toast('Enter credentials','err');return}
+  if(loginTab==='admin'){
+    const usr=DB.users.find(x=>x.username===u&&x.password===p);
+    if(!usr){toast('Invalid username or password','err');return}
+    CU=usr;CUT=usr.role;
+  }else{
+    const cl=DB.clients.find(x=>x.username===u&&x.password===p);
+    if(!cl){toast('Invalid client credentials','err');return}
+    CU=cl;CUT='client';
+  }
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+function doLogout(){CU=null;CUT=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('lu').value='';document.getElementById('lp').value='';Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});charts={}}
+
+function initApp(){
+  const isC=CUT==='client';
+  const bar=document.getElementById('clientBar');bar.style.display=isC?'flex':'none';
+  document.getElementById('sbAv').textContent=CU.name[0].toUpperCase();
+  document.getElementById('sbAv').className='uav av-'+(CUT==='client'?'client':(CUT==='admin'?'admin':'staff'));
+  document.getElementById('sbName').textContent=CU.name;
+  document.getElementById('sbRole').textContent={admin:'Administrator',staff:'Staff Member',client:'Client'}[CUT];
+  buildNav();populateCF();showPage('dashboard');
+}
+
+function buildNav(){
+  const isC=CUT==='client',isA=CUT==='admin';
+  const items=[
+    {id:'dashboard',label:'Dashboard',ic:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',show:true},
+    {id:'orders',label:'Orders',ic:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>',show:true,b:'bP',bc:'nb-g'},
+    {id:'ledger',label:'Financials',ic:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>',show:true,b:'bR',bc:'nb-w'},
+    {id:'finance',label:'Finance Hub',ic:'<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',show:CUT!=='client'},
+    {id:'products',label:'Products',ic:'<path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>',show:true},
+    {id:'team',label:'Team & Clients',ic:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',show:isA},
+    {id:'settings',label:'Settings',ic:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',show:true}
+  ];
+  let h='<div class="nsec">Navigation</div>';
+  items.filter(n=>n.show).forEach(n=>{
+    const b=n.b?`<span class="nb ${n.bc}" id="${n.b}" style="display:none">0</span>`:'';
+    h+=`<div class="ni" id="ni-${n.id}" onclick="showPage('${n.id}',this)"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${n.ic}</svg>${n.label}${b}</div>`;
+  });
+  document.getElementById('sbNav').innerHTML=h;
+  updBadges();
+}
+
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  if(el)el.classList.add('active');
+  else{const ni=document.getElementById('ni-'+name);if(ni)ni.classList.add('active');}
+  const titles={dashboard:'Dashboard',orders:'Orders',ledger:'Financials & Ledger',finance:'Finance Hub',products:'Products',team:'Team & Clients',settings:'Settings'};
+  document.getElementById('tbT').textContent=titles[name]||name;
+  document.getElementById('srchBox').style.display=name==='orders'?'flex':'none';
+  closeSB();
+  if(name==='dashboard')renderDash();
+  if(name==='orders')renderOrders();
+  if(name==='ledger')renderLedger();
+  if(name==='finance')renderFinance();
+  if(name==='products')renderProds();
+  if(name==='team'){renderStaff();renderClients();}
+}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbo').classList.toggle('open')}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbo').classList.remove('open')}
+function toggleTheme(){const dk=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',dk?'light':'dark');localStorage.setItem('td2t',dk?'light':'dark');setTimeout(()=>{if(document.getElementById('page-dashboard').classList.contains('active'))renderDash();},80)}
+const svt=localStorage.getItem('td2t');if(svt)document.documentElement.setAttribute('data-theme',svt);
+
+function gP(id){return DB.products.find(p=>p.id===id)}
+function gC(id){return DB.clients.find(c=>c.id===id)}
+function fD(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+function fDT(iso){if(!iso)return'—';return new Date(iso).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+function fR(n){return'₹'+(Number(n)||0).toLocaleString('en-IN')}
+function CM(id){document.getElementById(id).classList.remove('open')}
+function OM(id){document.getElementById(id).classList.add('open')}
+function toast(m,t){const el=document.createElement('div');el.className='ti'+(t==='err'?' err':'');el.textContent=m;document.getElementById('toast').appendChild(el);setTimeout(()=>el.remove(),3200)}
+function myOrders(){return CUT==='client'?DB.orders.filter(o=>o.clientId===CU.id):DB.orders}
+function updBadges(){
+  const o=myOrders();
+  const p=o.filter(x=>['New','Processing'].includes(x.status)).length;
+  const r=o.filter(x=>x.remittanceStatus==='Pending'&&x.orderType==='COD'&&x.codCollected==='yes').length;
+  const bP=document.getElementById('bP'),bR=document.getElementById('bR');
+  if(bP){bP.textContent=p;bP.style.display=p?'':'none'}
+  if(bR){bR.textContent=r;bR.style.display=r?'':'none'}
+  const bndO=document.getElementById('bnd-orders'),bndL=document.getElementById('bnd-ledger');
+  if(bndO)bndO.classList.toggle('show',p>0);
+  if(bndL)bndL.classList.toggle('show',r>0);
+}
+function populateCF(){
+  const s=document.getElementById('f_cl');if(!s)return;
+  if(CUT==='client'){s.style.display='none';return}
+  s.innerHTML='<option value="">All Clients</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function renderDash(){
+  const o=myOrders();
+  const tot=o.length,del=o.filter(x=>x.status==='Delivered').length,pend=o.filter(x=>['New','Processing'].includes(x.status)).length;
+  const codColl=o.filter(x=>x.codCollected==='yes').reduce((s,x)=>s+Number(x.codAmount),0);
+  const totRem=o.reduce((s,x)=>s+Number(x.remittanceSent||0),0);
+  const remPend=o.filter(x=>x.remittanceStatus==='Pending'&&x.orderType==='COD'&&x.codCollected==='yes').reduce((s,x)=>s+Number(x.remittanceDue||0)-Number(x.remittanceSent||0),0);
+  const cPaidMe=o.reduce((s,x)=>s+Number(x.clientPaidProduct||0)+Number(x.clientPaidShipping||0),0);
+  const isC=CUT==='client';
+  document.getElementById('sg').innerHTML= isC ? `
+    <div class="sc accent"><div class="sc-l">My Orders</div><div class="sc-v">${tot}</div><div class="sc-s">All time</div></div>
+    <div class="sc good"><div class="sc-l">COD Collected</div><div class="sc-v" style="font-size:16px">${fR(codColl)}</div><div class="sc-s">From end-customers</div></div>
+    <div class="sc warn"><div class="sc-l">Remittance Pending</div><div class="sc-v" style="font-size:16px">${fR(remPend)}</div><div class="sc-s">Due from manager</div></div>
+    <div class="sc good"><div class="sc-l">Remittance Received</div><div class="sc-v" style="font-size:16px">${fR(totRem)}</div><div class="sc-s">Forwarded to me</div></div>
+    <div class="sc"><div class="sc-l">I Paid Manager</div><div class="sc-v" style="font-size:16px">${fR(cPaidMe)}</div><div class="sc-s">Product + Shipping</div></div>
+    <div class="sc"><div class="sc-l">Active</div><div class="sc-v">${pend}</div><div class="sc-s">In progress</div></div>
+    <div class="sc"><div class="sc-l">Delivered</div><div class="sc-v">${del}</div><div class="sc-s">Completed</div></div>
+    <div class="sc"><div class="sc-l">RTO</div><div class="sc-v">${o.filter(x=>x.status==='RTO').length}</div><div class="sc-s">Returned</div></div>
+  ` : `
+    <div class="sc accent"><div class="sc-l">Total Orders</div><div class="sc-v">${tot}</div><div class="sc-s">All time</div></div>
+    <div class="sc good"><div class="sc-l">COD Collected</div><div class="sc-v" style="font-size:16px">${fR(codColl)}</div><div class="sc-s">From end-customers</div></div>
+    <div class="sc warn"><div class="sc-l">Remittance Due</div><div class="sc-v" style="font-size:16px">${fR(remPend)}</div><div class="sc-s">To be paid to clients</div></div>
+    <div class="sc"><div class="sc-l">Remitted</div><div class="sc-v" style="font-size:16px">${fR(totRem)}</div><div class="sc-s">Sent to clients</div></div>
+    <div class="sc"><div class="sc-l">Client Paid Me</div><div class="sc-v" style="font-size:16px">${fR(cPaidMe)}</div><div class="sc-s">Product + Shipping</div></div>
+    <div class="sc"><div class="sc-l">Pending</div><div class="sc-v">${pend}</div><div class="sc-s">Needs action</div></div>
+    <div class="sc"><div class="sc-l">Delivered</div><div class="sc-v">${del}</div><div class="sc-s">Completed</div></div>
+    <div class="sc"><div class="sc-l">RTO</div><div class="sc-v">${o.filter(x=>x.status==='RTO').length}</div><div class="sc-s">Return to origin</div></div>
+  `;
+  if(isC){
+    const flowHtml=`<div style="background:var(--info-light);border:1px solid var(--info);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--info);margin-bottom:16px;display:flex;gap:8px;align-items:center">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span><strong>Remittance flow:</strong> You pay manager (product + shipping) → Manager ships via Shiprocket → Shiprocket collects COD → Manager receives from Shiprocket → Manager forwards full COD to you</span>
+    </div>`;
+    document.getElementById('sg').insertAdjacentHTML('afterend', flowHtml);
+  }
+  renderCharts(o);
+  const rec=[...o].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+  document.getElementById('recentTb').innerHTML=rec.length?rec.map(x=>`<tr onclick="viewOrder('${x.id}')"><td><span class="oid">${x.id}</span></td><td style="font-size:12px">${gC(x.clientId)?.name||'—'}</td><td><span class="cname">${x.customer}</span></td><td><span class="badge b-${x.orderType.toLowerCase()}">${x.orderType}</span></td><td class="mono">${fR(x.codAmount)}</td><td><span class="badge b-${x.status.toLowerCase()}">${x.status}</span></td><td><span class="badge b-${(x.remittanceStatus||'pending').toLowerCase()}">${x.remittanceStatus||'—'}</span></td><td style="color:var(--text3);font-size:11px">${fD(x.date)}</td></tr>`).join(''):`<tr><td colspan="8"><div class="empty"><p>No orders yet</p></div></td></tr>`;
+  updBadges();
+}
+
+function renderCharts(o){
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  const gc=dk?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)';
+  Chart.defaults.color=dk?'#9e9c94':'#6b6960';
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});charts={};
+  const days=[],cnts=[];
+  for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}));cnts.push(o.filter(x=>new Date(x.date).toDateString()===d.toDateString()).length)}
+  charts.o=new Chart(document.getElementById('ch_o'),{type:'line',data:{labels:days,datasets:[{data:cnts,borderColor:dk?'#4ade80':'#2d6a4f',backgroundColor:dk?'rgba(74,222,128,0.1)':'rgba(45,106,79,0.07)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:dk?'#4ade80':'#2d6a4f'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{font:{size:9}}},y:{grid:{color:gc},ticks:{stepSize:1}}}}});
+  const rem=o.filter(x=>x.remittanceStatus==='Remitted').length,pnd=o.filter(x=>x.remittanceStatus==='Pending').length,prt=o.filter(x=>x.remittanceStatus==='Partial').length,na=o.filter(x=>x.remittanceStatus==='N/A').length;
+  charts.r=new Chart(document.getElementById('ch_r'),{type:'doughnut',data:{labels:['Remitted','Pending','Partial','N/A'],datasets:[{data:[rem,pnd,prt,na],backgroundColor:['#4ade80','#f87171','#fbbf24','#60a5fa'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,padding:9,font:{size:10}}}},cutout:'62%'}});
+  const sts=['New','Processing','Shipped','Delivered','RTO','Cancelled'];
+  charts.s=new Chart(document.getElementById('ch_s'),{type:'bar',data:{labels:sts,datasets:[{data:sts.map(s=>o.filter(x=>x.status===s).length),backgroundColor:['#60a5fa','#fbbf24','#a78bfa','#4ade80','#f9a8d4','#f87171'],borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:gc},ticks:{stepSize:1}}}}});
+  const cod=o.filter(x=>x.orderType==='COD').length,pre=o.filter(x=>x.orderType==='Prepaid').length;
+  charts.t=new Chart(document.getElementById('ch_t'),{type:'doughnut',data:{labels:['COD','Prepaid'],datasets:[{data:[cod,pre],backgroundColor:dk?['#c4b5fd','#86efac']:['#7c3aed','#166534'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,padding:9,font:{size:10}}}},cutout:'62%'}});
+}
+
+function renderOrders(filtered){
+  const isC=CUT==='client';
+  document.getElementById('addOBtn').style.display=isC?'none':'';
+  document.getElementById('acol').style.display=isC?'none':'';
+  const orders=(filtered||myOrders()).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('ordersTb').innerHTML=orders.length?orders.map(x=>`<tr onclick="viewOrder('${x.id}')">
+    <td><span class="oid">${x.id}</span></td>
+    <td style="font-size:12px;color:var(--text2)">${gC(x.clientId)?.name||'—'}</td>
+    <td><div class="cname">${x.customer}</div><div class="cphone">${x.phone}</div></td>
+    <td style="font-size:12px">${gP(x.product)?.name||'—'}</td>
+    <td><span class="badge b-${x.orderType.toLowerCase()}">${x.orderType}</span></td>
+    <td class="mono">${fR(x.codAmount)}</td>
+    <td class="mono" style="color:var(--success)">${fR(Number(x.clientPaidProduct||0)+Number(x.clientPaidShipping||0))}</td>
+    <td><span class="badge b-${(x.remittanceStatus||'pending').toLowerCase()}">${x.remittanceStatus||'—'}</span><div class="mono" style="font-size:10px;margin-top:1px">${fR(x.remittanceDue)}</div></td>
+    <td><span class="badge b-${x.status.toLowerCase()}">${x.status}</span></td>
+    <td class="mono" style="font-size:11px">${x.awb||'—'}</td>
+    <td style="color:var(--text3);font-size:11px">${fD(x.date)}</td>
+    ${isC?'':`<td onclick="event.stopPropagation()"><div style="display:flex;gap:4px"><button class="btn btn-s btn-sm" onclick="editOrder('${x.id}')">Edit</button>${CUT==='admin'?`<button class="btn btn-d btn-sm" onclick="confDel('${x.id}')">Del</button>`:''}</div></td>`}
+  </tr>`).join(''):`<tr><td colspan="12"><div class="empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><h3>No orders found</h3><p>Adjust filters or add a new order</p></div></td></tr>`;
+}
+function filterOrders(){
+  const q=(document.getElementById('srchIn').value||'').toLowerCase();
+  const st=document.getElementById('f_st').value,ot=document.getElementById('f_ot').value;
+  const cl=document.getElementById('f_cl')?.value||'';
+  let o=myOrders();
+  if(q)o=o.filter(x=>x.customer.toLowerCase().includes(q)||x.id.toLowerCase().includes(q)||(x.awb||'').toLowerCase().includes(q));
+  if(st)o=o.filter(x=>x.status===st);if(ot)o=o.filter(x=>x.orderType===ot);if(cl)o=o.filter(x=>x.clientId===cl);
+  renderOrders(o);
+}
+
+function openNewOrder(){
+  if(CUT==='client'){toast('Clients cannot create orders','err');return}
+  eOid=null;tImgs=[];document.getElementById('omT').textContent='New Order';
+  ['o_cn','o_ph','o_em','o_ad','o_cod','o_cpp','o_cps','o_awb','o_cn2','o_sn'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('o_cl').value='';document.getElementById('o_pr').value='';
+  document.getElementById('o_ty').value='COD';document.getElementById('o_st').value='New';
+  document.getElementById('o_cc').value='';document.getElementById('o_rd').value='';
+  document.getElementById('o_rs').value='0';document.getElementById('o_rst').value='Pending';
+  document.getElementById('awbLinkWrap').style.display='none';
+  document.getElementById('imgPrev').innerHTML='';
+  popOS();OM('oModal');
+}
+function editOrder(id){
+  if(CUT==='client')return;
+  const x=DB.orders.find(o=>o.id===id);if(!x)return;
+  eOid=id;tImgs=[...(x.images||[])];document.getElementById('omT').textContent='Edit Order – '+id;
+  popOS();
+  document.getElementById('o_cl').value=x.clientId||'';document.getElementById('o_cn').value=x.customer;
+  document.getElementById('o_ph').value=x.phone;document.getElementById('o_em').value=x.email||'';
+  document.getElementById('o_ad').value=x.address||'';document.getElementById('o_pr').value=x.product||'';
+  document.getElementById('o_ty').value=x.orderType||'COD';document.getElementById('o_cod').value=x.codAmount||'';
+  document.getElementById('o_cpp').value=x.clientPaidProduct||'';document.getElementById('o_cps').value=x.clientPaidShipping||'';
+  document.getElementById('o_awb').value=x.awb||'';document.getElementById('o_cour').value=x.courier||'';
+  document.getElementById('o_st').value=x.status||'New';document.getElementById('o_cc').value=x.codCollected||'';
+  document.getElementById('o_rd').value=x.remittanceDue||'';document.getElementById('o_rs').value=x.remittanceSent||'0';
+  document.getElementById('o_rst').value=x.remittanceStatus||'Pending';
+  document.getElementById('o_cn2').value=x.clientNote||'';document.getElementById('o_sn').value=x.staffNote||'';
+  renderIP();updAWBLink();OM('oModal');
+}
+function popOS(){
+  document.getElementById('o_cl').innerHTML='<option value="">Select client…</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('o_pr').innerHTML='<option value="">Select product…</option>'+DB.products.map(p=>`<option value="${p.id}">${p.name} – ${fR(p.price)}</option>`).join('');
+}
+function fillPP(){const p=gP(document.getElementById('o_pr').value);if(p){document.getElementById('o_cod').value=p.price;syncRemDue();}}
+
+function syncRemDue(){
+  const ty=document.getElementById('o_ty').value;
+  const cod=Number(document.getElementById('o_cod').value||0);
+  const rdEl=document.getElementById('o_rd');
+  if(ty==='COD'&&cod>0){rdEl.value=cod;}
+  else if(ty==='Prepaid'){rdEl.value='';document.getElementById('o_rst').value='N/A';}
+}
+
+function updAWBLink(){
+  const awb=document.getElementById('o_awb').value.trim();
+  const wrap=document.getElementById('awbLinkWrap');
+  const link=document.getElementById('awbLink');
+  if(awb){wrap.style.display='block';link.href='https://shiprocket.in/tracking/'+awb;}
+  else{wrap.style.display='none';}
+}
+
+function updRemStatus(){
+  const due=Number(document.getElementById('o_rd').value||0);
+  const sent=Number(document.getElementById('o_rs').value||0);
+  const sel=document.getElementById('o_rst');
+  if(document.getElementById('o_ty').value==='Prepaid'){sel.value='N/A';return;}
+  if(sent<=0)sel.value='Pending';
+  else if(sent>=due)sel.value='Remitted';
+  else sel.value='Partial';
+}
+
+function saveOrder(){
+  const cid=document.getElementById('o_cl').value,cn=document.getElementById('o_cn').value.trim(),ph=document.getElementById('o_ph').value.trim(),pr=document.getElementById('o_pr').value,cod=document.getElementById('o_cod').value;
+  if(!cid||!cn||!ph||!pr||!cod){toast('Fill all required fields','err');return}
+  const now=new Date().toISOString();
+  const data={clientId:cid,customer:cn,phone:ph,email:document.getElementById('o_em').value,address:document.getElementById('o_ad').value,product:pr,orderType:document.getElementById('o_ty').value,codAmount:Number(cod),clientPaidProduct:Number(document.getElementById('o_cpp').value||0),clientPaidShipping:Number(document.getElementById('o_cps').value||0),awb:document.getElementById('o_awb').value,courier:document.getElementById('o_cour').value,status:document.getElementById('o_st').value,codCollected:document.getElementById('o_cc').value,remittanceDue:Number(document.getElementById('o_rd').value||cod),remittanceSent:Number(document.getElementById('o_rs').value||0),remittanceStatus:document.getElementById('o_rst').value,clientNote:document.getElementById('o_cn2').value,staffNote:document.getElementById('o_sn').value,images:tImgs};
+  if(eOid){
+    const x=DB.orders.find(o=>o.id===eOid),os=x.status;
+    Object.assign(x,data);x.history=x.history||[];
+    x.history.push({action:os!==x.status?`Status: ${os} → ${x.status}`:'Order updated',user:CU.name,time:now});
+    toast('Order updated!');
+  }else{
+    const id='ORD-'+String(Date.now()).slice(-6);
+    DB.orders.push({id,...data,date:now,history:[{action:'Order created',user:CU.name,time:now}]});
+    toast('Order created!');
+  }
+  save();CM('oModal');renderOrders();updBadges();
+}
+
+function handleImgs(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tImgs.push(e.target.result);renderIP()};r.readAsDataURL(f)});inp.value=''}
+function renderIP(){document.getElementById('imgPrev').innerHTML=tImgs.map((img,i)=>`<div class="imt"><img src="${img}" onclick="event.stopPropagation();openLB('${img.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" alt="img"><div class="di" onclick="event.stopPropagation();dImg(${i})">✕</div></div>`).join('')}
+function dImg(i){tImgs.splice(i,1);renderIP()}
+function openLB(src){document.getElementById('lbImg').src=src;document.getElementById('lbox').classList.add('open')}
+
+function viewOrder(id){
+  const x=DB.orders.find(o=>o.id===id);if(!x)return;
+  const isC=CUT==='client';
+  const cpp=Number(x.clientPaidProduct||0)+Number(x.clientPaidShipping||0);
+  const bal=Number(x.remittanceDue||0)-Number(x.remittanceSent||0);
+  document.getElementById('dmT').textContent='Order '+x.id;
+  document.getElementById('dmDel').style.display=CUT==='admin'?'':'none';
+  document.getElementById('dmEdit').style.display=isC?'none':'';
+  dOid=id;
+  const imgs=x.images?.length?`<div style="margin-top:12px"><div class="nsec" style="margin-bottom:8px">Payment Receipts / Proof</div><div class="img-prev">${x.images.map(img=>`<div class="imt"><img src="${img}" onclick="openLB('${img.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" alt="img"></div>`).join('')}</div></div>`:'';
+  document.getElementById('dmB').innerHTML=`
+    <div class="lg-grid">
+      <div class="lc cr"><div class="lc-l">COD Amount</div><div class="lc-v">${fR(x.codAmount)}</div></div>
+      <div class="lc db"><div class="lc-l">Client Paid Me</div><div class="lc-v">${fR(cpp)}</div></div>
+      <div class="lc nt"><div class="lc-l">Remittance Due</div><div class="lc-v">${fR(x.remittanceDue)}</div></div>
+      <div class="lc" style="background:var(--success-light);border-color:var(--success)"><div class="lc-l">Remitted</div><div class="lc-v" style="color:var(--success)">${fR(x.remittanceSent)}</div></div>
+      <div class="lc ${bal>0?'db':'cr'}" style="grid-column:span 2"><div class="lc-l">Balance You Owe Client</div><div class="lc-v">${fR(bal)}</div></div>
+    </div>
+    ${!isC?`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-family:'DM Mono',monospace;margin-bottom:10px">⚡ Quick Update</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:flex-end">
+        <div class="fg" style="margin:0"><label>Order Status</label>
+          <select id="qu_st" style="padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none">
+            <option ${x.status==='New'?'selected':''}>New</option>
+            <option ${x.status==='Processing'?'selected':''}>Processing</option>
+            <option ${x.status==='Shipped'?'selected':''}>Shipped</option>
+            <option ${x.status==='Delivered'?'selected':''}>Delivered</option>
+            <option ${x.status==='RTO'?'selected':''}>RTO</option>
+            <option ${x.status==='Cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </div>
+        <div class="fg" style="margin:0"><label>COD Collected?</label>
+          <select id="qu_cc" style="padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none">
+            <option value="" ${!x.codCollected?'selected':''}>Pending</option>
+            <option value="yes" ${x.codCollected==='yes'?'selected':''}>✅ Yes – Collected</option>
+            <option value="no" ${x.codCollected==='no'?'selected':''}>❌ No – RTO/Cancel</option>
+          </select>
+        </div>
+        <div class="fg" style="margin:0"><label>Remittance Sent (₹)</label>
+          <input type="number" id="qu_rs" value="${x.remittanceSent||0}" style="padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;width:100%;outline:none">
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-p btn-sm" style="width:100%;justify-content:center" onclick="quickUpdate('${x.id}')">Save Changes</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">💡 Shiprocket collects COD → pays you → you forward to client as remittance</div>
+    </div>`:''}
+    <div class="d2c">
+      <div class="ds"><h4>Customer</h4>
+        <div class="dr"><span class="dk">Name</span><span class="dv">${x.customer}</span></div>
+        <div class="dr"><span class="dk">Phone</span><span class="dv">${x.phone}</span></div>
+        <div class="dr"><span class="dk">Email</span><span class="dv">${x.email||'—'}</span></div>
+        <div class="dr"><span class="dk">Address</span><span class="dv" style="max-width:180px;text-align:right">${x.address||'—'}</span></div>
+      </div>
+      <div class="ds"><h4>Order</h4>
+        <div class="dr"><span class="dk">Client</span><span class="dv">${gC(x.clientId)?.name||'—'}</span></div>
+        <div class="dr"><span class="dk">Product</span><span class="dv">${gP(x.product)?.name||'—'}</span></div>
+        <div class="dr"><span class="dk">Type</span><span class="dv"><span class="badge b-${x.orderType.toLowerCase()}">${x.orderType}</span></span></div>
+        <div class="dr"><span class="dk">Status</span><span class="dv"><span class="badge b-${x.status.toLowerCase()}">${x.status}</span></span></div>
+        <div class="dr"><span class="dk">COD Collected</span><span class="dv">${x.codCollected==='yes'?'✅ Yes':x.codCollected==='no'?'❌ No':'⏳ Pending'}</span></div>
+        <div class="dr"><span class="dk">Date</span><span class="dv">${fD(x.date)}</span></div>
+      </div>
+      <div class="ds"><h4>Shipping</h4>
+        <div class="dr"><span class="dk">Courier</span><span class="dv">${x.courier||'—'}</span></div>
+        <div class="dr"><span class="dk">AWB</span><span class="dv" style="font-family:'DM Mono',monospace;font-size:11px">${x.awb||'—'}</span></div>
+        ${x.awb?`<div class="dr"><span class="dk">Track</span><span class="dv"><a href="https://shiprocket.in/tracking/${x.awb}" target="_blank" style="color:var(--accent);font-size:11px">Open Shiprocket ↗</a></span></div>`:''}
+      </div>
+      <div class="ds"><h4>Financials</h4>
+        <div class="dr"><span class="dk">Product cost (client)</span><span class="dv">${fR(x.clientPaidProduct)}</span></div>
+        <div class="dr"><span class="dk">Shipping (client)</span><span class="dv">${fR(x.clientPaidShipping)}</span></div>
+        <div class="dr"><span class="dk">Remittance Status</span><span class="dv"><span class="badge b-${(x.remittanceStatus||'pending').toLowerCase()}">${x.remittanceStatus||'—'}</span></span></div>
+        <div class="dr"><span class="dk">Amount Sent</span><span class="dv">${fR(x.remittanceSent)}</span></div>
+      </div>
+    </div>
+    ${x.clientNote||x.staffNote?`<div style="margin-top:10px">${x.clientNote?`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:12.5px;color:var(--text2);margin-bottom:7px">📋 ${x.clientNote}</div>`:''}${x.staffNote&&!isC?`<div style="background:var(--warning-light);border:1px solid var(--warning);border-radius:var(--radius-sm);padding:9px 12px;font-size:12.5px">🔒 <strong>Staff:</strong> ${x.staffNote}</div>`:''}</div>`:''}
+    ${imgs}
+    <div style="margin-top:14px">
+      <div class="nsec" style="margin-bottom:9px">Activity Log</div>
+      <div class="tl">${(x.history||[]).slice().reverse().map(h=>`<div class="tli"><div class="tld"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tlc"><div class="tla">${h.action}</div><div class="tlm">${h.user} · ${fDT(h.time)}</div></div></div>`).join('')}</div>
+    </div>`;
+  OM('detailM');
+}
+function editFD(){CM('detailM');editOrder(dOid)}
+function confDelFD(){CM('detailM');OM('confM')}
+function confDel(id){dOid=id;OM('confM')}
+function doDelete(){if(!dOid)return;DB.orders=DB.orders.filter(o=>o.id!==dOid);save();CM('confM');renderOrders();updBadges();toast('Order deleted');dOid=null}
+
+function quickUpdate(id){
+  const x=DB.orders.find(o=>o.id===id);if(!x)return;
+  const now=new Date().toISOString();
+  const oldSt=x.status;
+  const newSt=document.getElementById('qu_st').value;
+  const newCc=document.getElementById('qu_cc').value;
+  const newRs=Number(document.getElementById('qu_rs').value||0);
+  const changed=[];
+  if(newSt!==oldSt){x.status=newSt;changed.push(`Status: ${oldSt} → ${newSt}`);}
+  if(newCc!==x.codCollected){x.codCollected=newCc;changed.push(`COD collected: ${newCc||'pending'}`);}
+  if(newRs!==Number(x.remittanceSent||0)){
+    x.remittanceSent=newRs;
+    const due=Number(x.remittanceDue||0);
+    x.remittanceStatus=x.orderType==='Prepaid'?'N/A':(newRs<=0?'Pending':(newRs>=due?'Remitted':'Partial'));
+    changed.push(`Remittance sent: ${fR(newRs)} (${x.remittanceStatus})`);
+  }
+  if(changed.length===0){toast('No changes to save');return;}
+  x.history=x.history||[];
+  x.history.push({action:changed.join(' | '),user:CU.name,time:now});
+  save();
+  toast('Updated!');
+  CM('detailM');
+  renderOrders();
+  updBadges();
+  if(document.getElementById('page-dashboard').classList.contains('active'))renderDash();
+  if(document.getElementById('page-ledger').classList.contains('active'))renderLedger();
+}
+
+function renderLedger(){
+  const o=myOrders();
+  const tCOD=o.filter(x=>x.codCollected==='yes').reduce((s,x)=>s+Number(x.codAmount),0);
+  const tDue=o.reduce((s,x)=>s+Number(x.remittanceDue||0),0);
+  const tSent=o.reduce((s,x)=>s+Number(x.remittanceSent||0),0);
+  const cPM=o.reduce((s,x)=>s+Number(x.clientPaidProduct||0)+Number(x.clientPaidShipping||0),0);
+  const isC=CUT==='client';
+  document.getElementById('lsg').innerHTML=`
+    <div class="sc good"><div class="sc-l">${isC?'COD (My Orders)':'COD Collected'}</div><div class="sc-v" style="font-size:16px">${fR(tCOD)}</div><div class="sc-s">${isC?'From your customers':'From end-customers'}</div></div>
+    <div class="sc"><div class="sc-l">${isC?'I Paid Manager':'Client Paid Me'}</div><div class="sc-v" style="font-size:16px">${fR(cPM)}</div><div class="sc-s">Product + Shipping</div></div>
+    <div class="sc accent"><div class="sc-l">${isC?'Remittance Owed to Me':'Total Remittance Due'}</div><div class="sc-v" style="font-size:16px">${fR(tDue)}</div><div class="sc-s">${isC?'From your manager':'Owed to clients'}</div></div>
+    <div class="sc"><div class="sc-l">${isC?'Remittance Received':'Remitted'}</div><div class="sc-v" style="font-size:16px">${fR(tSent)}</div><div class="sc-s">${isC?'Forwarded to you':'Sent to clients'}</div></div>
+    <div class="sc warn"><div class="sc-l">${isC?'Still Pending':'Balance Remaining'}</div><div class="sc-v" style="font-size:16px">${fR(tDue-tSent)}</div><div class="sc-s">${isC?'Not yet received':'Still to remit'}</div></div>
+  `;
+  const sorted=[...o].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('ledTb').innerHTML=sorted.length?sorted.map(x=>{const d=Number(x.remittanceDue||0),s=Number(x.remittanceSent||0),b=d-s;return`<tr onclick="viewOrder('${x.id}')"><td><span class="oid">${x.id}</span></td><td style="font-size:12px">${gC(x.clientId)?.name||'—'}</td><td><span class="badge b-${x.orderType.toLowerCase()}">${x.orderType}</span></td><td class="mono">${fR(x.codAmount)}</td><td class="mono" style="color:var(--success)">${fR(Number(x.clientPaidProduct||0)+Number(x.clientPaidShipping||0))}</td><td class="mono">${x.codCollected==='yes'?fR(x.codAmount):'—'}</td><td class="mono">${fR(d)}</td><td class="mono" style="color:var(--success)">${fR(s)}</td><td><strong class="mono" style="color:${b>0?'var(--danger)':'var(--success)'}">${fR(b)}</strong></td><td><span class="badge b-${(x.remittanceStatus||'pending').toLowerCase()}">${x.remittanceStatus||'—'}</span></td></tr>`}).join(''):`<tr><td colspan="10"><div class="empty"><p>No ledger entries</p></div></td></tr>`;
+}
+
+function renderProds(){
+  const canEdit=CUT==='admin';
+  document.getElementById('addPBtn').style.display=canEdit?'':'none';
+  document.getElementById('prodG').innerHTML=DB.products.map(p=>`<div class="pc" onclick="${canEdit?`openEP('${p.id}')`:''}" style="${!canEdit?'cursor:default':''}"><div class="pc-n">${p.name}</div><div class="pc-p">${fR(p.price)}</div><div class="pc-s">${p.sku||'No SKU'}</div>${p.desc?`<div style="font-size:11.5px;color:var(--text2);margin-top:5px">${p.desc}</div>`:''}</div>`).join('');
+}
+function openPM(){ePid=null;document.getElementById('pmT').textContent='Add Product';['pm_n','pm_p','pm_s','pm_d'].forEach(id=>document.getElementById(id).value='');OM('pModal')}
+function openEP(id){const p=gP(id);if(!p)return;ePid=id;document.getElementById('pmT').textContent='Edit Product';document.getElementById('pm_n').value=p.name;document.getElementById('pm_p').value=p.price;document.getElementById('pm_s').value=p.sku||'';document.getElementById('pm_d').value=p.desc||'';OM('pModal')}
+function saveProd(){const n=document.getElementById('pm_n').value.trim();if(!n){toast('Name required','err');return}if(ePid){const p=gP(ePid);p.name=n;p.price=Number(document.getElementById('pm_p').value)||0;p.sku=document.getElementById('pm_s').value;p.desc=document.getElementById('pm_d').value;toast('Updated!')}else{DB.products.push({id:'p'+Date.now(),name:n,price:Number(document.getElementById('pm_p').value)||0,sku:document.getElementById('pm_s').value,desc:document.getElementById('pm_d').value});toast('Product added!')}save();CM('pModal');renderProds()}
+
+function renderStaff(){document.getElementById('staffG').innerHTML=DB.users.map(u=>`<div class="pcard"><div class="pav ${u.role}">${u.name[0]}</div><div class="p-n">${u.name}</div><div class="p-r">${u.role==='admin'?'👑 Admin':'👤 Staff'}</div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px">@${u.username}</div><div class="p-a"><button class="btn btn-g btn-sm" onclick="openCP('${u.id}','${u.name.replace(/'/g,"\\'")}',false)">🔑 Pass</button>${u.id!==CU.id?`<button class="btn btn-d btn-sm" onclick="delUser('${u.id}')">Del</button>`:''}</div></div>`).join('')}
+function renderClients(){document.getElementById('clientG').innerHTML=DB.clients.map(c=>`<div class="pcard"><div class="pav client">${c.name[0]}</div><div class="p-n">${c.name}</div><div class="p-r">📦 Client</div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px">@${c.username}</div><div style="font-size:11px;color:var(--text2);margin-top:3px">${c.phone||''}</div><div class="p-a"><button class="btn btn-g btn-sm" onclick="openCP('${c.id}','${c.name.replace(/'/g,"\\'")}',true)">🔑 Pass</button><button class="btn btn-d btn-sm" onclick="delClient('${c.id}')">Del</button></div></div>`).join('')}
+function openStaffM(){['sm_n','sm_u','sm_p'].forEach(id=>document.getElementById(id).value='');document.getElementById('sm_r').value='staff';OM('staffM')}
+function saveStaff(){const n=document.getElementById('sm_n').value.trim(),u=document.getElementById('sm_u').value.trim(),p=document.getElementById('sm_p').value.trim();if(!n||!u||!p){toast('All fields required','err');return}if(DB.users.find(x=>x.username===u)||DB.clients.find(x=>x.username===u)){toast('Username taken','err');return}DB.users.push({id:'u'+Date.now(),name:n,username:u,password:p,role:document.getElementById('sm_r').value});save();CM('staffM');renderStaff();toast('Staff added!')}
+function delUser(id){if(id===CU.id){toast("Can't delete yourself",'err');return}if(!confirm('Delete this staff member?'))return;DB.users=DB.users.filter(u=>u.id!==id);save();renderStaff();toast('Staff removed')}
+function openClientM(){['cl_n','cl_ph','cl_em','cl_u','cl_p'].forEach(id=>document.getElementById(id).value='');OM('clientM')}
+function saveClient(){const n=document.getElementById('cl_n').value.trim(),u=document.getElementById('cl_u').value.trim(),p=document.getElementById('cl_p').value.trim();if(!n||!u||!p){toast('Name, username & password required','err');return}if(DB.clients.find(x=>x.username===u)||DB.users.find(x=>x.username===u)){toast('Username taken','err');return}DB.clients.push({id:'c'+Date.now(),name:n,phone:document.getElementById('cl_ph').value,email:document.getElementById('cl_em').value,username:u,password:p});save();CM('clientM');renderClients();populateCF();toast('Client added!')}
+function delClient(id){if(!confirm('Delete this client?'))return;DB.clients=DB.clients.filter(c=>c.id!==id);DB.orders.forEach(o=>{if(o.clientId===id)o.clientId=''});save();renderClients();populateCF();toast('Client removed')}
+function openCP(id,name,isC){document.getElementById('cpFor').textContent=name;document.getElementById('cp_id').value=id;document.getElementById('cp_isC').value=isC?'1':'0';document.getElementById('cp_np').value='';document.getElementById('cp_cf').value='';OM('cpM')}
+function doChPass(){const np=document.getElementById('cp_np').value.trim(),cf=document.getElementById('cp_cf').value.trim(),id=document.getElementById('cp_id').value,isC=document.getElementById('cp_isC').value==='1';if(!np||!cf){toast('Fill both fields','err');return}if(np!==cf){toast('Passwords do not match','err');return}if(np.length<6){toast('Minimum 6 characters','err');return}if(isC){const c=DB.clients.find(x=>x.id===id);if(c)c.password=np}else{const u=DB.users.find(x=>x.id===id);if(u)u.password=np}save();CM('cpM');toast('Password updated!')}
+function changeMyPass(){const c=document.getElementById('cp_c').value.trim(),n=document.getElementById('cp_n').value.trim(),f=document.getElementById('cp_f').value.trim();if(!c||!n||!f){toast('Fill all fields','err');return}const me=DB.users.find(u=>u.id===CU.id)||DB.clients.find(cl=>cl.id===CU.id);if(!me||me.password!==c){toast('Current password incorrect','err');return}if(n!==f){toast('Passwords do not match','err');return}if(n.length<6){toast('Minimum 6 characters','err');return}me.password=n;CU.password=n;save();toast('Password changed!');document.getElementById('cp_c').value='';document.getElementById('cp_n').value='';document.getElementById('cp_f').value=''}
+
+function exportCSV(){const o=myOrders();const h=['Order ID','Client','Customer','Phone','Address','Product','Type','COD Amount','Client Paid Product','Client Paid Shipping','COD Collected','Remittance Due','Remittance Sent','Remittance Status','AWB','Courier','Status','Date'];const r=o.map(x=>[x.id,gC(x.clientId)?.name||'',x.customer,x.phone,x.address||'',gP(x.product)?.name||'',x.orderType,x.codAmount,x.clientPaidProduct,x.clientPaidShipping,x.codCollected,x.remittanceDue,x.remittanceSent,x.remittanceStatus,x.awb||'',x.courier||'',x.status,fD(x.date)]);const csv=[h,...r].map(row=>row.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='trackdesk-orders.csv';a.click();toast('Exported!')}
+function exportLedger(){const o=myOrders();const h=['Order ID','Client','Type','COD Amount','Client Paid Me','COD Collected','Remittance Due','Sent','Balance','Status'];const r=o.map(x=>{const d=Number(x.remittanceDue||0),s=Number(x.remittanceSent||0);return[x.id,gC(x.clientId)?.name||'',x.orderType,x.codAmount,Number(x.clientPaidProduct||0)+Number(x.clientPaidShipping||0),x.codCollected==='yes'?x.codAmount:0,d,s,d-s,x.remittanceStatus||'']});const csv=[h,...r].map(row=>row.map(v=>`"${String(v||'')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='trackdesk-ledger.csv';a.click();toast('Ledger exported!')}
+
+// ─── FINANCE HUB ─────────────────────────────────────────────────
+function populateMonthFilter(){
+  const sel=document.getElementById('fin_month');
+  if(!sel)return;
+  const months=new Set(DB.orders.map(o=>o.date?.slice(0,7)).filter(Boolean));
+  DB.cycles.forEach(c=>{if(c.date)months.add(c.date.slice(0,7))});
+  const sorted=[...months].sort().reverse();
+  const cur=sel.value;
+  sel.innerHTML='<option value="">All Time</option>'+sorted.map(m=>{const[y,mo]=m.split('-');const label=new Date(y,mo-1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});return`<option value="${m}">${label}</option>`}).join('');
+  if(cur)sel.value=cur;
+}
+
+function renderFinance(){
+  populateMonthFilter();
+  const mf=document.getElementById('fin_month')?.value||'';
+  const allO=DB.orders;
+  const filtO=mf?allO.filter(o=>o.date?.startsWith(mf)):allO;
+
+  // ── MY EARNINGS ──
+  const myEarnings=o=>Number(o.clientPaidProduct||0)+Number(o.clientPaidShipping||0);
+  const totalEarned=filtO.reduce((s,o)=>s+myEarnings(o),0);
+  const deliveredO=filtO.filter(o=>o.status==='Delivered');
+  const earnedDelivered=deliveredO.reduce((s,o)=>s+myEarnings(o),0);
+  const rtoO=filtO.filter(o=>o.status==='RTO');
+  const rtoCount=rtoO.length;
+  const avgEarning=filtO.length?Math.round(totalEarned/filtO.length):0;
+
+  document.getElementById('earn_stats').innerHTML=`
+    <div class="sc accent"><div class="sc-l">Total Earned</div><div class="sc-v" style="font-size:16px">${fR(totalEarned)}</div><div class="sc-s">Product + Shipping fees</div></div>
+    <div class="sc good"><div class="sc-l">From Delivered</div><div class="sc-v" style="font-size:16px">${fR(earnedDelivered)}</div><div class="sc-s">Confirmed orders</div></div>
+    <div class="sc"><div class="sc-l">Avg per Order</div><div class="sc-v" style="font-size:16px">${fR(avgEarning)}</div><div class="sc-s">Earning per order</div></div>
+    <div class="sc warn"><div class="sc-l">RTO Orders</div><div class="sc-v">${rtoCount}</div><div class="sc-s">${filtO.length?Math.round(rtoCount/filtO.length*100):0}% RTO rate</div></div>
+  `;
+
+  // ── EARNINGS CHART (monthly) ──
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  const gc=dk?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)';
+  Chart.defaults.color=dk?'#9e9c94':'#6b6960';
+  if(charts.earn)try{charts.earn.destroy()}catch(e){}
+  if(charts.cl_earn)try{charts.cl_earn.destroy()}catch(e){}
+
+  // Last 6 months
+  const months6=[];const earn6=[];
+  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const key=d.toISOString().slice(0,7);months6.push(d.toLocaleDateString('en-IN',{month:'short',year:'2-digit'}));earn6.push(allO.filter(o=>o.date?.startsWith(key)).reduce((s,o)=>s+myEarnings(o),0));}
+  charts.earn=new Chart(document.getElementById('ch_earn'),{type:'bar',data:{labels:months6,datasets:[{label:'Earnings',data:earn6,backgroundColor:dk?'rgba(74,222,128,0.7)':'rgba(45,106,79,0.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:gc}}}}});
+
+  // Earnings by client
+  const clEarns=DB.clients.map(c=>({name:c.name,val:filtO.filter(o=>o.clientId===c.id).reduce((s,o)=>s+myEarnings(o),0)})).filter(c=>c.val>0);
+  charts.cl_earn=new Chart(document.getElementById('ch_cl_earn'),{type:'doughnut',data:{labels:clEarns.map(c=>c.name),datasets:[{data:clEarns.map(c=>c.val),backgroundColor:['#4ade80','#60a5fa','#fbbf24','#f87171','#c4b5fd','#f9a8d4'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,padding:9,font:{size:10}}}},cutout:'55%'}});
+
+  // ── CLIENT P&L ──
+  const clRows=DB.clients.map(c=>{
+    const co=filtO.filter(o=>o.clientId===c.id);
+    const codO=co.filter(o=>o.orderType==='COD');
+    const preO=co.filter(o=>o.orderType==='Prepaid');
+    const totCOD=codO.reduce((s,o)=>s+Number(o.codAmount),0);
+    const cPaidMe=co.reduce((s,o)=>s+Number(o.clientPaidProduct||0)+Number(o.clientPaidShipping||0),0);
+    const remDue=co.reduce((s,o)=>s+Number(o.remittanceDue||0),0);
+    const remSent=co.reduce((s,o)=>s+Number(o.remittanceSent||0),0);
+    const bal=remDue-remSent;
+    const earned=cPaidMe;
+    const rto=co.filter(o=>o.status==='RTO').length;
+    return{name:c.name,total:co.length,cod:codO.length,pre:preO.length,totCOD,cPaidMe,remDue,remSent,bal,earned,rto};
+  });
+  document.getElementById('cl_pl_tb').innerHTML=clRows.length?clRows.map(r=>`
+    <tr>
+      <td style="font-weight:700">${r.name}</td>
+      <td class="mono">${r.total}</td>
+      <td class="mono">${r.cod}</td>
+      <td class="mono">${r.pre}</td>
+      <td class="mono">${fR(r.totCOD)}</td>
+      <td class="mono" style="color:var(--success)">${fR(r.cPaidMe)}</td>
+      <td class="mono">${fR(r.remDue)}</td>
+      <td class="mono" style="color:var(--success)">${fR(r.remSent)}</td>
+      <td><strong class="mono" style="color:${r.bal>0?'var(--danger)':'var(--success)'}">${fR(r.bal)}</strong></td>
+      <td class="mono" style="color:var(--accent);font-weight:700">${fR(r.earned)}</td>
+      <td class="mono" style="color:${r.rto>0?'var(--danger)':'var(--text3)'}">${r.rto}</td>
+    </tr>`).join(''):`<tr><td colspan="11"><div class="empty"><p>No clients yet. Add clients to see P&L.</p></div></td></tr>`;
+
+  // ── CYCLES ──
+  const filtCyc=mf?DB.cycles.filter(c=>c.date?.startsWith(mf)):DB.cycles;
+  const sorted=[...filtCyc].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('cycle_tb').innerHTML=sorted.length?sorted.map(c=>{
+    const cl=gC(c.clientId);
+    const statusBadge=c.status==='forwarded'?'<span class="badge b-remitted">Forwarded</span>':'<span class="badge b-pending">Pending Forward</span>';
+    return`<tr>
+      <td class="mono">${fD(c.date)}</td>
+      <td class="mono" style="color:var(--success);font-weight:700">${fR(c.amount)}</td>
+      <td style="font-weight:600">${cl?.name||'—'}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:150px;white-space:normal">${c.orders||'—'}</td>
+      <td class="mono">${c.forwarded?fR(c.forwarded):'—'}</td>
+      <td class="mono">${fD(c.forwardDate)||'—'}</td>
+      <td class="mono" style="font-size:11px;color:var(--text2)">${c.ref||'—'}</td>
+      <td>${statusBadge}</td>
+      <td onclick="event.stopPropagation()"><div style="display:flex;gap:4px">
+        ${c.status!=='forwarded'?`<button class="btn btn-p btn-sm" onclick="markCycleForwarded('${c.id}')">Mark Forwarded</button>`:''}
+        <button class="btn btn-d btn-sm" onclick="deleteCycle('${c.id}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><h3>No cycles logged</h3><p>Log a cycle when Shiprocket pays you</p></div></td></tr>`;
+}
+
+function openCycleModal(){
+  ['cy_date','cy_amt','cy_ords','cy_fwd','cy_fwddate','cy_ref'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cy_cl').innerHTML='<option value="">Select client…</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('cy_st').value='received';
+  document.getElementById('cy_date').value=new Date().toISOString().slice(0,10);
+  OM('cycleM');
+}
+
+function saveCycle(){
+  const date=document.getElementById('cy_date').value;
+  const amt=document.getElementById('cy_amt').value;
+  const cid=document.getElementById('cy_cl').value;
+  if(!date||!amt||!cid){toast('Date, amount and client are required','err');return}
+  DB.cycles=DB.cycles||[];
+  DB.cycles.push({
+    id:'CYC-'+Date.now(),
+    date,amount:Number(amt),clientId:cid,
+    orders:document.getElementById('cy_ords').value,
+    forwarded:Number(document.getElementById('cy_fwd').value||0)||null,
+    forwardDate:document.getElementById('cy_fwddate').value||null,
+    ref:document.getElementById('cy_ref').value,
+    status:document.getElementById('cy_st').value,
+    createdAt:new Date().toISOString()
+  });
+  save();CM('cycleM');renderFinance();toast('Cycle logged!');
+}
+
+function markCycleForwarded(id){
+  const c=DB.cycles.find(x=>x.id===id);if(!c)return;
+  const ref=prompt('Enter transaction reference (UPI Ref / UTR):','');
+  if(ref===null)return;
+  c.status='forwarded';
+  c.forwardDate=new Date().toISOString().slice(0,10);
+  if(ref)c.ref=ref;
+  if(!c.forwarded)c.forwarded=c.amount;
+  save();renderFinance();toast('Marked as forwarded!');
+}
+
+function deleteCycle(id){
+  if(!confirm('Delete this cycle?'))return;
+  DB.cycles=DB.cycles.filter(c=>c.id!==id);
+  save();renderFinance();toast('Cycle deleted');
+}
+
+function exportFinance(){
+  const rows=[];
+  rows.push(['=== MY EARNINGS ===']);
+  rows.push(['Order ID','Client','Type','Client Paid Product','Client Paid Shipping','My Earning','Status','Date']);
+  DB.orders.forEach(o=>rows.push([o.id,gC(o.clientId)?.name||'',o.orderType,o.clientPaidProduct||0,o.clientPaidShipping||0,(Number(o.clientPaidProduct||0)+Number(o.clientPaidShipping||0)),o.status,fD(o.date)]));
+  rows.push([]);
+  rows.push(['=== SHIPROCKET CYCLES ===']);
+  rows.push(['Cycle ID','Date','Client','Amount Received','Forwarded','Forward Date','Txn Ref','Status']);
+  (DB.cycles||[]).forEach(c=>rows.push([c.id,fD(c.date),gC(c.clientId)?.name||'',c.amount,c.forwarded||0,fD(c.forwardDate)||'',c.ref||'',c.status]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='trackdesk-finance.csv';a.click();toast('Finance exported!');
+}
+
+load();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* ✅ CONNECT SUPABASE */
-const db = window.supabase.createClient(
+const supabase = window.supabase.createClient(
   "https://plutgdrzlggecxnbjqxy.supabase.co",
   "sb_publishable_4w3UYv9lEFTxTztCgIQIUw_q-9JruF4"
 );
-
-/* ✅ SAVE ORDER */
-async function saveOrder() {
-  const { error } = await db
-    .from('orders')
-    .insert([
-      {
-        customer_name: "Misab",
-        product: "Dog Hoodie",
-        cod_amount: 799,
-        status: "New"
-      }
-    ]);
-
-  if (error) {
-    console.log(error);
-    alert("Error saving");
-  } else {
-    alert("Saved successfully!");
-  }
-}
-
-/* ✅ LOAD ORDERS */
-async function loadOrders() {
-  const { data, error } = await db
-    .from('orders')
-    .select('*');
-
-  if (error) {
-    console.log(error);
-    alert("Error loading");
-  } else {
-    document.getElementById("output").innerText =
-      JSON.stringify(data, null, 2);
-  }
-}
 </script>
-
 </body>
 </html>
