@@ -3,55 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <title>Track Desk</title>
-  <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h2 {
-      color: #333;
-    }
-    button {
-      padding: 10px 15px;
-      margin: 5px;
-      border: none;
-      background: black;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      opacity: 0.8;
-    }
-    pre {
-      background: white;
-      padding: 10px;
-      margin-top: 15px;
-      border-radius: 5px;
-    }
-  </style>
 </head>
 
 <body>
 
-<h2>📦 Track Desk (Live + Supabase)</h2>
+<h2>Track Desk - Test</h2>
 
 <button onclick="saveOrder()">Save Order</button>
 <button onclick="loadOrders()">Load Orders</button>
 
-<pre id="output">Data will appear here...</pre>
+<pre id="output"></pre>
 
-<!-- ✅ SUPABASE (ONLY ONE TIME) -->
+<!-- ✅ SUPABASE SCRIPT (ONLY ONCE) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* 🔌 CONNECT SUPABASE */
+/* ✅ CONNECT SUPABASE */
 const db = window.supabase.createClient(
   "https://plutgdrzlggecxnbjqxy.supabase.co",
   "sb_publishable_4w3UYv9lEFTxTztCgIQIUw_q-9JruF4"
 );
 
-/* 💾 SAVE ORDER */
+/* ✅ SAVE ORDER */
 async function saveOrder() {
   const { error } = await db
     .from('orders')
@@ -65,22 +38,22 @@ async function saveOrder() {
     ]);
 
   if (error) {
-    console.error(error);
-    alert("❌ Error saving");
+    console.log(error);
+    alert("Error saving");
   } else {
-    alert("✅ Saved successfully!");
+    alert("Saved successfully!");
   }
 }
 
-/* 📥 LOAD ORDERS */
+/* ✅ LOAD ORDERS */
 async function loadOrders() {
   const { data, error } = await db
     .from('orders')
     .select('*');
 
   if (error) {
-    console.error(error);
-    alert("❌ Error loading");
+    console.log(error);
+    alert("Error loading");
   } else {
     document.getElementById("output").innerText =
       JSON.stringify(data, null, 2);
